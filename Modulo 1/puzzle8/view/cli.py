@@ -1,6 +1,6 @@
 # puzzle8/view/cli.py
 from __future__ import annotations
-from ..model.board import Board
+from model.board import Board
 
 class CLIView:
     def show_welcome(self):

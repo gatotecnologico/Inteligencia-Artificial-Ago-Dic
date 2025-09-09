@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional, Tuple
 import heapq
-from ..model.board import Board
-from ..model.heuristics import manhattan
+from model.board import Board
+from model.heuristics import manhattan
 
 Heuristic = Callable[[Board], int]
 
@@ -14,6 +14,8 @@ class Prioritized:
     cnt: int
     board: Board = field(compare=False)
 
+# Reconstruye la secuencia de movimientos desde el objetivo hasta el inicio e invierte la lista para obtener 
+# los movimientos en orden correcto.
 def reconstruct_path(came_from: Dict[Board, Tuple[Optional[Board], Optional[str]]],
                      goal: Board) -> List[str]:
     moves: List[str] = []

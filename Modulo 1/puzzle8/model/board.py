@@ -11,7 +11,7 @@ GOAL: State = (1, 2, 3,
                7, 8, 0)
 
 MOVES = {
-    'U': (-1, 0),  # mover el hueco hacia arriba (el hueco sube)
+    'U': (-1, 0),
     'D': (1, 0),
     'L': (0, -1),
     'R': (0, 1),
@@ -19,16 +19,17 @@ MOVES = {
 
 @dataclass(frozen=True)
 class Board:
-    """Representa un estado del 8-puzzle como tupla inmutable."""
+    # "Representa un estado del 8-puzzle como tupla inmutable."
     state: State
 
     @staticmethod
     def from_list(vals: Iterable[int]) -> "Board":
         t = tuple(vals)
         if len(t) != 9 or set(t) != set(range(9)):
-            raise ValueError("El estado debe contener los números 0..8 exactamente una vez.")
+            raise ValueError("El estado debe contener los números 0..8 exactamente.")
         return Board(t)
 
+    # Devuelve el estado objetivo
     @staticmethod
     def goal() -> "Board":
         return Board(GOAL)
@@ -37,9 +38,11 @@ class Board:
         i = self.state.index(value)
         return (i // 3, i % 3)
 
+    # Verifica si se alcanzó el estado objetivo
     def is_solved(self) -> bool:
         return self.state == GOAL
 
+    # Devuelve movimientos válidos desde la posición del hueco
     def legal_moves(self) -> List[str]:
         r, c = self.index_of(0)
         moves = []
@@ -49,8 +52,8 @@ class Board:
                 moves.append(m)
         return moves
 
+    # Devuelve un nuevo tablero (Board) aplicando el movimiento, o None si no es legal
     def move(self, m: str) -> Optional["Board"]:
-        """Devuelve un nuevo Board aplicando el movimiento, o None si no es legal."""
         if m not in MOVES:
             return None
         r, c = self.index_of(0)
@@ -68,8 +71,8 @@ class Board:
     def neighbors(self) -> List[Tuple[str, "Board"]]:
         return [(m, self.move(m)) for m in self.legal_moves()]
 
+    # Verifica si el juego es resoluble
     def is_solvable(self) -> bool:
-        """Para 3x3, es resoluble si el número de inversiones es par."""
         arr = [x for x in self.state if x != 0]
         inv = 0
         for i in range(len(arr)):
@@ -77,8 +80,3 @@ class Board:
                 if arr[i] > arr[j]:
                     inv += 1
         return inv % 2 == 0
-
-    def __str__(self) -> str:
-        rows = [self.state[0:3], self.state[3:6], self.state[6:9]]
-        def fmt(x): return " " if x == 0 else str(x)
-        return "\n".join(" | ".join(fmt(x) for x in row) for row in rows)
