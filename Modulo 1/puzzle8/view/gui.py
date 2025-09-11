@@ -3,7 +3,7 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import messagebox
 from typing import Callable, Optional
-from model.board import Board
+from model.board import Tablero
 
 Tile = list[list[tk.Label]]
 
@@ -22,8 +22,9 @@ class GUIView:
         self.grid_frame.grid(row=0, column=0, columnspan=4, pady=(0, 10))
         self.tiles: Tile = [[None]*3 for _ in range(3)]  # type: ignore
 
+        self.moves_label = tk.Label(self._frame, text="Movimientos (A*): 0", anchor="w")
+        self.moves_label.grid(row=2, column=0, columnspan=2, sticky="w", pady=(4, 0))
 
-        # Creación del Tablero 3x3
         for r in range(3):
             for c in range(3):
                 lbl = tk.Label(self.grid_frame, text="",
@@ -59,9 +60,13 @@ class GUIView:
         self._on_solve = fn
         self.btn_solve.configure(command=fn)
 
-    # Actualiza visualmente el tablero
-    def render(self, board: Board, header: str | None = None):
+    # ==== API que usa el Controller ====
+    def render(self, board: Tablero, header: str | None = None, movs: int | None = None):
         if header: self.set_status(header)
+        if movs is not None:
+            self.moves_label.configure(text=f"Movimientos (A*): {movs}")
+            self.moves_label.update_idletasks()
+
         st = board.state
         for r in range(3):
             for c in range(3):

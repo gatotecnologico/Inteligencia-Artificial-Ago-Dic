@@ -1,54 +1,90 @@
-
-# puzzle8/controller/game_controller.py  (añadir/editar)
 from __future__ import annotations
 from typing import Optional, List
-from model.board import Board
+from model.board import Tablero
 from .solver import astar
 import random
 
-class GameController:
-    # Guarda el estado actual del tablero y el estado inicial.
-    def __init__(self, board: Board):
-        self.board = board
-        self._initial = board
+class PuzzleController:
+    def __init__(actual, tablero: Tablero):
+        actual.tablero = tablero
+        actual._init = tablero
+        actual.movimientos_jugador = 0
 
-    def bind_gui(self, guiview):
-        self.view = guiview
-        guiview.bind_on_shuffle(self.on_shuffle)
-        guiview.bind_on_solve(self.on_solve)
-        self.view.render(self.board)
-        if self.board.is_solved():
-            self.view.set_status("¡Resuelto!")
+    def hacer_gui(actual, guiview):
+        actual.view = guiview
+        guiview.bind_on_shuffle(actual.barajear)
+        guiview.bind_on_solve(actual.on_solve)
+        actual.view.render(actual.tablero)
+        if actual.tablero.es_meta():
+            actual.view.set_status("¡Resuelto!")
 
-    # Mezcla el tablero con movimientos aleatorios y garantiza que el resultado sea resoluble con movimientos legales
-    def on_shuffle(self, n: int = 40, seed: int | None = None):
-        random.seed(seed)
-        b = self.board
+            
+    def barajear(actual, n: int = 40, semilla: int | None = None):
+        random.seed(semilla)
+        b = actual.tablero
         for _ in range(n):
-            mv = random.choice(b.legal_moves())
-            b = b.move(mv)
-        self.board = b
-        self._initial = b
-        self.view.render(self.board, header=f"Barajado ({n} movimientos)")
+            mv = random.choice(b.movimientos_legales())
+            b = b.movimiento(mv)
+        actual.tablero = b
+        actual._init = b
+        actual.movimientos_jugador = 0
+        actual.view.render(actual.tablero, header=f"Barajado ({n} movimientos)")
 
-    # Usa el algoritmo A* para encontrar la solución óptima y muestra cuántos movimientos necesita
-    def on_solve(self, animate: bool = True, delay_ms: int = 200):
+    def on_solve(actual, animate: bool = True, delay_ms: int = 100):
         try:
-            self.view.set_status("Buscando solución con A* …")
-            path, expanded = astar(self.board)
-            self.view.set_status(f"Solución en {len(path)} movs. Expandidos: {expanded}")
-            if not animate:
-                return
-            self._playback(path, delay_ms)
-        except ValueError as e:
-            self.view.set_status(str(e))
+            actual.view.set_status("Buscando solución con A* …")
+           
+            #Llama al algoritmo A* pasando el tablero actual.
+            ruta, nodos_expandidos = astar(actual.tablero) 
+            total = len(ruta) #Calcula el total de movimientos necesarios para resolver
+            
+            #Guarda estadísticas para usarlas al final de la animación
+            actual.movimientos_solver = 0
+            actual.solver_total = total
+            actual.solver_nodos_expandidos = nodos_expandidos
 
-    # Muestra cada movimiento en la interfaz
-    def _playback(self, path: List[str], delay_ms: int):
-        if not path:
-            self.view.set_status("¡Resuelto! 🎉")
+                       
+            actual._playback(
+            ruta[:],
+            delay_ms 
+            )
+    
+        except ValueError as e:
+            actual.view.set_status(str(e))
+
+
+    def _playback(actual, raiz: List[str], delay_ms: int):
+        # Si ya no hay movimientos, deja el mensaje final con ambas métricas
+        if not raiz:
+            total = getattr(actual, "solver_total", actual.movimientos_solver)
+            exp = getattr(actual, "solver_nodos_expandidos", None)
+
+            # Ajusta el contador por si faltó sincronizar
+            actual.movimientos_solver = total
+
+            if exp is not None:
+                actual.view.set_status(
+                    f"¡Resuelto por A* en {total} movimientos! "
+                    f"Nodos expandidos: {exp}"
+                )
+            else:
+                actual.view.set_status(f"¡Resuelto por A* en {total} movimientos!")
             return
-        mv = path.pop(0)
-        self.board = self.board.move(mv)
-        self.view.render(self.board, header=f"Aplicando: {mv}")
-        self.view.schedule(delay_ms, lambda: self._playback(path, delay_ms))
+
+        # Aplica el siguiente movimiento
+        mv = raiz.pop(0)
+        actual.tablero = actual.tablero.movimiento(mv)
+        actual.movimientos_solver += 1
+
+        # Progreso en vivo: paso X/Y
+        paso = actual.movimientos_solver
+        total = getattr(actual, "solver_total", paso)
+
+        actual.view.render(
+            actual.tablero,
+            header=f"A* aplicando: {mv}  ·  Paso {paso}/{total}",
+            movs=paso
+        )
+
+        # Programa el siguiente paso (usa el scheduler propio de tu vista)
+        actual.view.schedule(delay_ms, lambda: actual._playback(raiz, delay_ms))
