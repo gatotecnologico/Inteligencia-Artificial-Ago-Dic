@@ -1,59 +1,53 @@
-
-
-# puzzle8/main.py  (reemplaza por esta versión)
 from __future__ import annotations
-import argparse, random
+import random 
 from typing import List
-from .model.board import Board, GOAL
-from .controller.game_controller import GameController
+from model.board import Tablero, solucion
+from controller.game_controller import PuzzleController
 
-def parse_args():
-    p = argparse.ArgumentParser(description="8-Puzzle MVC")
-    p.add_argument("--start", type=str,
-                   help='Estado inicial como 9 números separados por espacios. Ej: "1 2 3 4 5 6 7 0 8"')
-    p.add_argument("--random", type=int, default=0,
-                   help="Aplicar N barajadas aleatorias desde el objetivo.")
-    p.add_argument("--seed", type=int, default=None, help="Semilla RNG para reproducibilidad.")
-    p.add_argument("--solve", action="store_true", help="Resolver con A* y mostrar la animación (CLI).")
-    p.add_argument("--gui", action="store_true", help="Lanzar interfaz gráfica Tkinter.")
-    return p.parse_args()
 
-def random_board(shuffles: int, seed: int | None) -> Board:
-    random.seed(seed)
-    b = Board(GOAL)
-    for _ in range(shuffles):
-        mv = random.choice(b.legal_moves())
-        b = b.move(mv)
+def random_tablero(barajadas: int, semilla: int | None) -> Tablero: 
+    """Genera un tablero aleatorio pero siempre resoluble.
+    
+    Parte de la solución final y aplica una cantidad de movimientos legales 
+    aleatorios para "barajar" el puzzle. De esta forma se garantiza que 
+    el tablero resultante sea alcanzable desde el estado meta.
+
+    Args:
+        barajadas (int): Número de movimientos aleatorios a aplicar.
+        semilla (int | None): Semilla para el generador aleatorio (opcional).
+    
+    Returns:
+        Tablero: Estado inicial del puzzle después de los movimientos.
+    """
+    random.seed(semilla)
+    b = Tablero(solucion) 
+    for _ in range(barajadas):
+        mv = random.choice(b.movimientos_legales())
+        b = b.movimiento(mv)
     return b
 
+
 def main():
-    args = parse_args()
+    """Punto de entrada del programa.
 
-    if args.start:
-        vals = [int(x) for x in args.start.split()]
-        board = Board.from_list(vals)
-    elif args.random and args.random > 0:
-        board = random_board(args.random, args.seed)
-    else:
-        board = Board.from_list((1, 2, 3, 4, 5, 6, 0, 7, 8))
+    - Define un tablero inicial (puede ser fijo o aleatorio).
+    - Verifica que el tablero tenga solución.
+    - Crea el controlador principal (`PuzzleController`).
+    - Inicializa la interfaz gráfica y lanza el bucle principal.
+    """
+    board = Tablero.from_list((4, 0, 1, 3, 5, 6, 2, 7, 8))
 
-    if not board.is_solvable():
-        raise SystemExit("El estado inicial no es resoluble. Intenta otra semilla o barajado.")
+    if not board.es_resoluble():
+        raise SystemExit("El estado inicial no es resoluble. Intenta otra barajado.")
 
-    ctrl = GameController(board)
+    ctrl = PuzzleController(board)
 
-    if args.gui:
-        from .view.gui import GUIView
-        gv = GUIView()
-        ctrl.bind_gui(gv)
-        gv.mainloop()
-        return
+    from view.gui import GUIView
+    ventana = GUIView()
+    ctrl.hacer_gui(ventana)
+    ventana.mainloop()
+    return
 
-    # CLI
-    if args.solve:
-        ctrl.solve_and_playback(animate=True)
-    else:
-        ctrl.loop()
 
 if __name__ == "__main__":
     main()
