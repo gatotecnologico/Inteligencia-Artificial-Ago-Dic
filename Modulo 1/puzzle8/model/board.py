@@ -84,9 +84,4 @@ class Tablero:
                     inv += 1
         return inv % 2 == 0
 
-    def __str__(self) -> str:
-        rows = [self.state[0:3], self.state[3:6], self.state[6:9]]
-        def fmt(x): return " " if x == 0 else str(x)
-        return "\n".join(" | ".join(fmt(x) for x in row) for row in rows)
-
 
