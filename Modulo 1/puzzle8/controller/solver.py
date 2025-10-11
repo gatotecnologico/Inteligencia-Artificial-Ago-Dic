@@ -28,10 +28,7 @@ def trazar_ruta(raiz: Dict[Tablero, Tuple[Optional[Tablero], Optional[str]]],
 def astar(start: Tablero,
           heuristic: Heuristic = manhattan,
           max_expansions: int = 200000) -> Tuple[List[str], int]:
-    """
-    Devuelve (lista_de_movimientos, nodos_expandidos).
-    Lanza ValueError si no hay solución o se excede max_expansions.
-    """
+          
     if not start.es_resoluble():
         raise ValueError("El estado inicial NO es resoluble (paridad incorrecta).")
 

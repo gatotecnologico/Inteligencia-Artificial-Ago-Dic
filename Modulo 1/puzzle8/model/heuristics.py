@@ -5,7 +5,6 @@ from .board import Tablero, solucion
 # Position: representa una coordenada en el tablero (fila, columna).
 Position = Tuple[int, int]
 
-
 def manhattan(board: Tablero) -> int:
     """Calcula la heurística Manhattan para un tablero del puzzle 8.
 
@@ -14,15 +13,6 @@ def manhattan(board: Tablero) -> int:
     correcta en el estado objetivo. La heurística total es la suma 
     de estas distancias para todas las fichas.
 
-    Args:
-        board (Tablero): Estado actual del puzzle.
-
-    Returns:
-        int: Suma de distancias Manhattan de todas las fichas.
-    
-    Ejemplo:
-        Si una ficha está en (0,0) pero debería ir en (2,2),
-        su contribución será |0-2| + |0-2| = 4.
     """
     dist = 0
     # Recorre fichas del 1 al 8 (el 0 es el espacio vacío, no se cuenta).

@@ -5,13 +5,6 @@ from model.board import Tablero, solucion
 from controller.game_controller import PuzzleController
 
 def main():
-    """Punto de entrada del programa.
-
-    - Define un tablero inicial (puede ser fijo o aleatorio).
-    - Verifica que el tablero tenga solución.
-    - Crea el controlador principal (`PuzzleController`).
-    - Inicializa la interfaz gráfica y lanza el bucle principal.
-    """
     board = Tablero.from_list((4, 0, 1, 3, 5, 6, 2, 7, 8))
 
     if not board.es_resoluble():
