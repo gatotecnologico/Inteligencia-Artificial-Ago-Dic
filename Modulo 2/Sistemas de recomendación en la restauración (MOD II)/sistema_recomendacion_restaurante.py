@@ -243,7 +243,3 @@ if __name__ == "__main__":
     top_rec_C = recomendador.generar_top_recomendaciones(restriccion_A, preferencia_A, top_n=3)
     print(f"Restricción: '{restriccion_A}', Preferencia: '{preferencia_A}' (¡Mantequilla agotada!)")
     print(top_rec_C.to_string(index=False))
-
-    # El plato "Ravioles de Queso" ahora tiene D=0, lo que provoca que su probabilidad caiga de 0.90 a 0.30/0.40,
-    # siendo superado por platos que sí están 100% disponibles. **El sistema ha revisado su creencia (probabilidad)**
-    # debido a la nueva evidencia (falta de mantequilla).
