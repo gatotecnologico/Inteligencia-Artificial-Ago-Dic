@@ -2,8 +2,8 @@ import cv2
 import os
 
 # Rutas
-dataPersonas = 'C:/Users/Jazva/OneDrive/Escritorio/Inteligencia-Artificial-Ago-Dic/Modulo 4/Reconocimiento Emociones/data/personas'
-dataEmociones = 'C:/Users/Jazva/OneDrive/Escritorio/Inteligencia-Artificial-Ago-Dic/Modulo 4/Reconocimiento Emociones/data/emociones'
+dataPersonas = r'C:\Users\JoseA\OneDrive\Desktop\Archivos Uni\Inteligencia-Artificial-Ago-Dic\Modulo 4\Reconocimiento Emociones\data\personas'
+dataEmociones = r'C:\Users\JoseA\OneDrive\Desktop\Archivos Uni\Inteligencia-Artificial-Ago-Dic\Modulo 4\Reconocimiento Emociones\data\emociones'
 
 # Listas
 personNames = os.listdir(dataPersonas)
